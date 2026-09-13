@@ -136,3 +136,9 @@ MAILERS = {
 
 # Povolení CORS pro lokální vývoj frontendu
 CORS_ALLOW_ALL_ORIGINS = True  # Pro vývoj bezpečné a nejrychlejší řešení
+
+# Konfigurace Django REST Frameworku (Stránkování a Vyhledávání)
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 5,  # Počet záznamů na jednu stránku (pro test dáme 5)
+}
