@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interní systém pro evidenci projektů</title>
+    <style>
+        body { font-family: system-ui, -apple-system, sans-serif; background-color: #f3f4f6; color: #1f2937; padding: 2rem 0; margin: 0; line-height: 1.5; }
+        .container { width: 100%; padding-right: 1.5rem; padding-left: 1.5rem; margin-right: auto; margin-left: auto; max-width: 1240px; box-sizing: border-box; }
+        .main-title { text-align: center; color: #111827; font-size: 2.25rem; font-weight: 800; margin-bottom: 0.5rem; }
+        .subtitle { text-align: center; color: #6b7280; margin-bottom: 2rem; }
+        .alert-api { padding: 1rem; margin-bottom: 2rem; border: 1px solid #bae6fd; border-radius: 0.5rem; color: #0369a1; background-color: #f0f9ff; text-align: center; font-size: 0.95rem; }
+        .alert-link { color: #0c4a6e; font-weight: 700; text-decoration: underline; }
+        .grid { display: flex; flex-direction: column; gap: 2rem; }
+        @media (min-width: 992px) {
+            .grid { flex-direction: row; }
+            .col-main { flex: 0 0 65%; max-width: 65%; box-sizing: border-box; }
+            .col-side { flex: 0 0 35%; max-width: 35%; box-sizing: border-box; }
+        }
+        .card { background-color: #fff; border: 1px solid #e5e7eb; border-radius: 0.75rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); margin-bottom: 2rem; overflow: hidden; transition: border-color 0.25s ease, box-shadow 0.25s ease; }
+        .card-header { padding: 1.25rem 1.5rem; font-size: 1.1rem; font-weight: 700; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center; }
+        .header-projects { background-color: #1f2937; color: #ffffff; }
+        .header-people { background-color: #374151; color: #ffffff; }
+        .header-form-project { background-color: #2563eb; color: #ffffff; }
+        .header-form-person { background-color: #16a34a; color: #ffffff; }
+        .card-body { padding: 1.5rem; }
+        .card-edit-mode { border-color: #ea580c !important; box-shadow: 0 10px 15px -3px rgba(234, 88, 12, 0.15) !important; }
+        .header-edit-mode { background-color: #ea580c !important; }
+        .table-responsive { width: 100%; overflow-x: auto; }
+        .custom-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.95rem; }
+        .custom-table th { background-color: #f9fafb; color: #4b5563; font-weight: 600; padding: 0.75rem 1rem; border-bottom: 2px solid #e5e7eb; text-transform: uppercase; font-size: 0.75rem; }
+        .custom-table td { padding: 1rem; border-bottom: 1px solid #edf2f7; vertical-align: top; }
+        .custom-table tr:hover { background-color: #f9fafb; }
+        .form-group { margin-bottom: 1.25rem; }
+        .form-label { display: block; margin-bottom: 0.5rem; font-weight: 600; color: #374151; font-size: 0.9rem; }
+        .form-control { display: block; width: 100%; padding: 0.625rem 0.75rem; color: #1f2937; background-color: #fff; border: 1px solid #d1d5db; border-radius: 0.375rem; box-sizing: border-box; }
+        .form-help { font-size: 0.8rem; color: #6b7280; margin-top: 0.25rem; display: block; }
+        .btn { display: inline-block; font-weight: 600; text-align: center; vertical-align: middle; padding: 0.625rem 1.25rem; font-size: 0.95rem; border-radius: 0.375rem; cursor: pointer; border: 1px solid transparent; width: 100%; box-sizing: border-box; }
+        .btn-primary { color: #fff; background-color: #2563eb; }
+        .btn-success { color: #fff; background-color: #16a34a; }
+        .btn-secondary { color: #374151; background-color: #e5e7eb; border-color: #d1d5db; margin-top: 0.5rem; }
+        .btn-sm { padding: 0.25rem 0.5rem; font-size: 0.8rem; border-radius: 0.25rem; width: auto; font-weight: 500; display: inline-block; margin-bottom: 0.25rem; }
+        .btn-danger-sm { color: #fff; background-color: #dc2626; }
+        .btn-warning-sm { color: #1f2937; background-color: #f59e0b; }
+        .badge { display: inline-flex; align-items: center; padding: 0.25rem 0.625rem; font-size: 0.75rem; font-weight: 700; border-radius: 9999px; white-space: nowrap; }
+        .badge-status { background-color: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
+        .badge-person { background-color: #f3f4f6; color: #374151; border: 1px solid #e5e7eb; margin-right: 0.375rem; margin-bottom: 0.375rem; }
+        .badge-role { background-color: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; font-size: 0.8rem; }
+        .text-muted { color: #6b7280; font-size: 0.875rem; }
+        .text-center { text-align: center; }
+        .font-bold { font-weight: 700; }
+        .project-title { font-weight: 700; color: #111827; margin: 0; font-size: 1rem; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1 class="main-title">🏢 Podnikový informační systém</h1>
+        <p class="subtitle">Evidence projektů a řízení lidských zdrojů</p>
+
+        <div class="alert-api">
+            ⚙️ <strong>REST API Modul:</strong> Přímé CRUD rozhraní pro integraci:
+            <a href="/api/projekty/" class="alert-link" target="_blank">/api/projekty/</a> |
+            <a href="/api/osoby/" class="alert-link" target="_blank">/api/osoby/</a>
+        </div>
+
+        <div class="grid">
+            <!-- LEVÝ SLOUPEC: PROJEKTY -->
+            <div class="col-main">
+                <div class="card">
+                    <div class="card-header header-projects">
+                        <span>📁 Přehledová tabulka projektů</span>
+                    </div>
+                    <div class="card-body">
+                        {% if projekty %}
+                            <div class="table-responsive">
+                                <table class="custom-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Název a popis projektu</th>
+                                            <th>Časový harmonogram</th>
+                                            <th>Stav</th>
+                                            <th>Zapojení lidé (Pozice)</th>
+                                            <th>Akce</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for projekt in projekty %}
+                                            <tr id="projekt-row-{{ projekt.id }}">
+                                                <td>
+                                                    <p class="project-title">{{ projekt.nazev }}</p>
+                                                    <span class="text-muted">{{ projekt.popis|default:"---" }}</span>
+                                                </td>
+                                                <td>
+                                                    <small class="font-bold">Od:</small> {{ projekt.start_date|date:"d. m. Y" }}<br>
+                                                    {% if projekt.end_date %}
+                                                        <small class="font-bold">Do:</small> {{ projekt.end_date|date:"d. m. Y" }}
+                                                    {% else %}
+                                                        <span class="text-muted small">Neurčeno</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td>
+                                                    <span class="badge badge-status">{{ projekt.stav }}</span>
+                                                </td>
+                                                <td>
+                                                    {% for clen in projekt.clenove.all %}
+                                                        <span class="badge badge-person">
+                                                            👤 {{ clen.prijmeni }} {{ clen.jmeno|slice:":1" }}.
+                                                            <small style="color: #6b7280; margin-left: 3px;">({{ clen.pozice }})</small>
+                                                        </span>
+                                                    {% empty %}
+                                                        <span class="text-muted small">Žádný tým</span>
+                                                    {% endfor %}
+                                                </td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-warning-sm"
+                                                            onclick="nacitProjektDoFormulare({
+                                                                id: '{{ projekt.id }}',
+                                                                nazev: '{{ projekt.nazev|escapejs }}',
+                                                                popis: '{{ projekt.popis|escapejs }}',
+                                                                start_date: '{{ projekt.start_date|date:'Y-m-d' }}',
+                                                                end_date: '{% if projekt.end_date %}{{ projekt.end_date|date:'Y-m-d' }}{% endif %}',
+                                                                stav: '{{ projekt.stav|escapejs }}',
+                                                                clenove: [{% for c in projekt.clenove.all %}'{{ c.id }}'{% if not forloop.last %},{% endif %}{% endfor %}]
+                                                            })">✏️ Upravit</button>
+                                                    <button class="btn btn-sm btn-danger-sm" onclick="smazZaznam('projekty', {{ projekt.id }})">🗑️ Smazat</button>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <p class="text-center text-muted py-3">V databázi aktuálně nejsou evidovány žádné projekty.</p>
+                        {% endif %}
+                    </div>
+                </div>
+                <!-- KOMBINOVANÝ FORMULÁŘ PRO UPSERT PROJEKTU -->
+                <div class="card" id="karta-projektu-form">
+                    <div class="card-header header-form-project" id="hlavicka-projektu-form">
+                        <h5 id="nadpis-projektu-form">➕ Karta založení nového projektu</h5>
+                    </div>
+                    <div class="card-body">
+                        <form method="POST" id="projekt-html-form">
+                            {% csrf_token %}
+                            {% if chyba_projekt %}
+                            <div style="padding: 1rem; margin-bottom: 1.25rem; border: 1px solid #fecaca; border-radius: 0.375rem; color: #991b1b; background-color: #fef2f2; font-size: 0.9rem; font-weight: 600;">
+                              ⚠️ Chyba validace: {{ chyba_projekt }}
+                            </div>
+                            {% endif %}
+                            <input type="hidden" name="vytvorit_projekt" value="1">
+
+                            <!-- Skryté pole pro ID projektu – klíčové pro UPSERT -->
+                            <input type="hidden" name="projekt_id" id="form-projekt-id" value="">
+
+                            <div class="form-group">
+                                <label class="form-label">Název projektu</label>
+                                <input type="text" name="nazev" id="form-projekt-nazev" class="form-control" placeholder="Zadejte jednoznačný název projektu" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Popis projektového záměru</label>
+                                <textarea name="popis" id="form-projekt-popis" class="form-control" rows="3" placeholder="Stručný cíl a specifikace projektu..."></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Datum zahájení realizace</label>
+                                <input type="date" name="start_date" id="form-projekt-start" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Předpokládané datum ukončení</label>
+                                <input type="date" name="end_date" id="form-projekt-end" class="form-control">
+                                <span class="form-help">Ponechte prázdné, pokud termín ukončení není pevně stanoven.</span>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Aktuální stav projektu</label>
+                                <input type="text" name="stav" id="form-projekt-stav" class="form-control" placeholder="Např. Příprava, V realizaci, Pozastaven" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Alokace lidských zdrojů do projektu</label>
+                                <select name="clenove" id="form-projekt-clenove" class="form-control" multiple style="height: 120px;">
+                                    {% for osoba in osoby %}
+                                        <option value="{{ osoba.id }}">{{ osoba.prijmeni }} {{ osoba.jmeno }} — {{ osoba.pozice }}</option>
+                                    {% endfor %}
+                                </select>
+                                <span class="form-help">Tip: Přidržte klávesu Ctrl (nebo Cmd na Macu) pro výběr více osob najednou.</span>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary" id="btn-submit-projekt">Uložit projekt do registru</button>
+                            <button type="button" class="btn btn-secondary" id="btn-reset-projekt" onclick="vynulujProjektFormular()" style="display: none; margin-top: 0.5rem;">Zrušit úpravu</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <!-- PRAVÝ SLOUPEC: OSOBY -->
+            <div class="col-side">
+                <div class="card">
+                    <div class="card-header header-people">
+                        <span>👥 Registr interních pracovníků</span>
+                    </div>
+                    <div class="card-body">
+                        {% if osoby %}
+                            <div class="table-responsive">
+                                <table class="custom-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Jméno a kontakt</th>
+                                            <th>Role / Pozice</th>
+                                            <th>Akce</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for osoba in osoby %}
+                                            <tr id="osoba-row-{{ osoba.id }}">
+                                                <td>
+                                                    <span class="font-bold">{{ osoba.prijmeni }} {{ osoba.jmeno }}</span><br>
+                                                    <small class="text-muted">✉️ {{ osoba.email }}</small>
+                                                </td>
+                                                <td>
+                                                    <span class="badge badge-role">{{ osoba.pozice }}</span>
+                                                </td>
+                                                <td>
+                                                    <!-- Tlačítko předává veškerá data pracovníka pro UPSERT do formuláře -->
+                                                    <button class="btn btn-sm btn-warning-sm"
+                                                            onclick="nacitOsobuDoFormulare({
+                                                                id: '{{ osoba.id }}',
+                                                                jmeno: '{{ osoba.jmeno|escapejs }}',
+                                                                prijmeni: '{{ osoba.prijmeni|escapejs }}',
+                                                                email: '{{ osoba.email|escapejs }}',
+                                                                pozice: '{{ osoba.pozice|escapejs }}'
+                                                            })">✏️</button>
+                                                    <button class="btn btn-sm btn-danger-sm" onclick="smazZaznam('osoby', {{ osoba.id }})">🗑️</button>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <p class="text-center text-muted py-3">V registru osob se nenacházejí žádné záznamy.</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- KOMBINOVANÝ FORMULÁŘ PRO UPSERT OSOBY -->
+                <div class="card" id="karta-osoby-form">
+                    <div class="card-header header-form-person" id="hlavicka-osoby-form">
+                        <h5 id="nadpis-osoby-form">➕ Registrační karta osoby</h5>
+                    </div>
+                    <div class="card-body">
+                        <form method="POST" id="osoba-html-form">
+                            {% csrf_token %}
+                            {% if chyba_osoba %}
+                            <div style="padding: 1rem; margin-bottom: 1.25rem; border: 1px solid #fecaca; border-radius: 0.375rem; color: #991b1b; background-color: #fef2f2; font-size: 0.9rem; font-weight: 600;">
+                            ⚠️ Chyba validace: {{ chyba_osoba }}
+                            </div>
+                            {% endif %}
+
+                            <input type="hidden" name="vytvorit_osobu" value="1">
+
+                            <!-- Skryté pole pro ID osoby – klíčové pro UPSERT -->
+                            <input type="hidden" name="osoba_id" id="form-osoba-id" value="">
+
+                            <div class="form-group">
+                                <label class="form-label">Křestní jméno</label>
+                                <input type="text" name="jmeno" id="form-osoba-jmeno" class="form-control" placeholder="Zadejte jméno" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Příjmení</label>
+                                <input type="text" name="prijmeni" id="form-osoba-prijmeni" class="form-control" placeholder="Zadejte příjmení" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">E-mailová adresa</label>
+                                <input type="email" name="email" id="form-osoba-email" class="form-control" placeholder="jmeno.prijmeni@firma.cz" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Zařazení na pracovní pozici</label>
+                                <input type="text" name="pozice" id="form-osoba-pozice" class="form-control" placeholder="Např. Senior Developer, Scrum Master" required>
+                            </div>
+
+                            <button type="submit" class="btn btn-success" id="btn-submit-osoba">Registrovat osobu do systému</button>
+                            <button type="button" class="btn btn-secondary" id="btn-reset-osoba" onclick="vynulujOsobuFormular()" style="display: none; margin-top: 0.5rem;">Zrušit úpravu</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- JAVASCRIPT: Logika pro asynchronní mazání a lokální UPSERT transformaci obou modulů -->
+    <script>
+        // Pomocná funkce pro bezpečné získání CSRF tokenu z cookies
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        // 🗑️ ASYNCHRONNÍ SMAZÁNÍ ZÁZNAMU (DELETE přes REST API)
+        function smazZaznam(endpoint, id) {
+            if (confirm('Opravdu si přejete tento záznam trvale smazat?')) {
+                fetch(`/api/${endpoint}/${id}/`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken'),
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        const rowId = endpoint === 'projekty' ? `projekt-row-${id}` : `osoba-row-${id}`;
+                        document.getElementById(rowId).remove();
+
+                        // Kontrola vyčištění formulářů po smazání rozpracovaného záznamu
+                        if (endpoint === 'projekty' && document.getElementById('form-projekt-id').value == id) {
+                            vynulujProjektFormular();
+                        } else if (endpoint === 'osoby' && document.getElementById('form-osoba-id').value == id) {
+                            vynulujOsobuFormular();
+                        }
+                    } else {
+                        alert('Došlo k chybě při mazání záznamu.');
+                    }
+                });
+            }
+        }
+
+        // ✏️ TRANSFORMOVAT FORMULÁŘ PROJEKTU DO REŽIMU ÚPRAVY (UPDATE)
+        function nacitProjektDoFormulare(data) {
+            document.getElementById('form-projekt-id').value = data.id;
+            document.getElementById('form-projekt-nazev').value = data.nazev;
+            document.getElementById('form-projekt-popis').value = data.popis;
+            document.getElementById('form-projekt-start').value = data.start_date;
+            document.getElementById('form-projekt-end').value = data.end_date;
+            document.getElementById('form-projekt-stav').value = data.stav;
+
+            const selectClenove = document.getElementById('form-projekt-clenove');
+            for (let i = 0; i < selectClenove.options.length; i++) {
+                const opce = selectClenove.options[i];
+                opce.selected = data.clenove.includes(opce.value);
+            }
+
+            document.getElementById('karta-projektu-form').classList.add('card-edit-mode');
+            document.getElementById('hlavicka-projektu-form').classList.add('header-edit-mode');
+            document.getElementById('nadpis-projektu-form').innerText = `✏️ Úprava projektu: ${data.nazev}`;
+            document.getElementById('btn-submit-projekt').innerText = 'Aktualizovat projekt v registru';
+            document.getElementById('btn-reset-projekt').style.display = 'block';
+            document.getElementById('karta-projektu-form').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // 🔄 RESET FORMULÁŘE PROJEKTU (Zpět do režimu INSERT)
+        function vynulujProjektFormular() {
+            document.getElementById('projekt-html-form').reset();
+            document.getElementById('form-projekt-id').value = '';
+            document.getElementById('karta-projektu-form').classList.remove('card-edit-mode');
+            document.getElementById('hlavicka-projektu-form').classList.remove('header-edit-mode');
+            document.getElementById('nadpis-projektu-form').innerText = '➕ Karta založení nového projektu';
+            document.getElementById('btn-submit-projekt').innerText = 'Uložit projekt do registru';
+            document.getElementById('btn-reset-projekt').style.display = 'none';
+        }
+
+        // ✏️ TRANSFORMOVAT FORMULÁŘ OSOBY DO REŽIMU ÚPRAVY (UPDATE)
+        function nacitOsobuDoFormulare(data) {
+            document.getElementById('form-osoba-id').value = data.id;
+            document.getElementById('form-osoba-jmeno').value = data.jmeno;
+            document.getElementById('form-osoba-prijmeni').value = data.prijmeni;
+            document.getElementById('form-osoba-email').value = data.email;
+            document.getElementById('form-osoba-pozice').value = data.pozice;
+
+            document.getElementById('karta-osoby-form').classList.add('card-edit-mode');
+            document.getElementById('hlavicka-osoby-form').classList.add('header-edit-mode');
+            document.getElementById('nadpis-osoby-form').innerText = `✏️ Úprava osoby: ${data.prijmeni} ${data.jmeno}`;
+            document.getElementById('btn-submit-osoba').innerText = 'Aktualizovat osobní kartu';
+            document.getElementById('btn-reset-osoba').style.display = 'block';
+            document.getElementById('karta-osoby-form').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // 🔄 RESET FORMULÁŘE OSOBY (Zpět do režimu INSERT)
+        function vynulujOsobuFormular() {
+            document.getElementById('osoba-html-form').reset();
+            document.getElementById('form-osoba-id').value = '';
+            document.getElementById('karta-osoby-form').classList.remove('card-edit-mode');
+            document.getElementById('hlavicka-osoby-form').classList.remove('header-edit-mode');
+            document.getElementById('nadpis-osoby-form').innerText = '➕ Registrační karta osoby';
+            document.getElementById('btn-submit-osoba').innerText = 'Registrovat osobu do systému';
+            document.getElementById('btn-reset-osoba').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
