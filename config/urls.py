@@ -29,8 +29,8 @@ from core import views  # Klasické HTML pohledy
 
 # Registrace REST API
 router = DefaultRouter()
-router.register(r'osoby', OsobaViewSet)
-router.register(r'projekty', ProjektViewSet)
+router.register(r'osoby', OsobaViewSet, basename='osoba')
+router.register(r'projekty', ProjektViewSet, basename='projekt')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
