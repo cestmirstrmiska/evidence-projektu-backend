@@ -9,27 +9,31 @@ class OsobaSerializer(serializers.ModelSerializer):
 
 
 class ProjektSerializer(serializers.ModelSerializer):
-    # Přepíšeme pole 'clenove', aby serializer při GET dotazu vracel detailní info o lidech,
-    # ale při zápisu (POST/PUT/PATCH) přijímal pouze seznam jejich ID.
+    # Detailní výpis členů (pouze pro čtení)
     clenove_detail = OsobaSerializer(many=True, read_only=True, source='clenove')
+
+    # OPRAVA: Definujeme pole 'clenove' pro zápis s parametrem required=False
+    # To umožní předat prázdný seznam [] a založit projekt bez lidí.
+    clenove = serializers.PrimaryKeyRelatedField(
+        many=True,
+        queryset=Osoba.objects.all(),
+        required=False  # <-- TENTO PARAMETR ZDE CHYBĚL!
+    )
 
     class Meta:
         model = Projekt
         fields = ['id', 'nazev', 'popis', 'start_date', 'end_date', 'stav', 'clenove', 'clenove_detail']
 
-    # POKROČILÁ VALIDACE PRO REST API (Bod 2 zadání)
     def validate(self, attrs):
         start_date = attrs.get('start_date')
         end_date = attrs.get('end_date')
 
-        # Pokud provádíme PATCH (částečnou úpravu), musíme si data dohledat ze stávajícího objektu
         if self.instance:
             if start_date is None:
                 start_date = self.instance.start_date
             if end_date is None:
                 end_date = self.instance.end_date
 
-        # 1. Validace logického rozsahu datumů
         if start_date and end_date:
             if end_date < start_date:
                 raise serializers.ValidationError({
