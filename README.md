@@ -7,7 +7,7 @@ Název projektu musí být unikátní. Stav projektu může nabývat jedné z ho
 Dále lze registrovat osoby, které se mohou účastnit projektů, tj. mohou být členy projektových týmů. U osoby se ukládá jméno, příjmení, email a pozice.
 Email musí být unikátní. 
 
-Aplikace podporuje standardně operace CRUD. Vyhledávat lze fulltextově, u projektů téže podle stavu projektu pomocí statického select boxu,
+Aplikace podporuje standardně operace CRUD. Vyhledávat lze fulltextově, u projektů též podle stavu projektu pomocí statického select boxu,
 u osob též podle pozice pomocí dynamického select boxu.
 
 Pokud jde o operaci Delete, provádí fyzický výmaz z databáze. Aplikace neprovádí žádnou archivaci ani hisorizaci dat.
