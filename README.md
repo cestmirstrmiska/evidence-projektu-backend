@@ -10,7 +10,7 @@ Email musí být unikátní.
 Aplikace podporuje standardně operace CRUD. Vyhledávat lze fulltextově, u projektů též podle stavu projektu pomocí statického select boxu,
 u osob též podle pozice pomocí dynamického select boxu.
 
-Pokud jde o operaci Delete, provádí fyzický výmaz z databáze. Aplikace neprovádí žádnou archivaci ani hisorizaci dat.
+Pokud jde o operaci Delete, provádí fyzický výmaz z databáze. Aplikace neprovádí žádnou archivaci ani historizaci dat.
 
 ### 🔗 Propojení
 * **Frontend repozitář najdete zde:** [https://github.com/cestmirstrmiska/evidence-projektu-frontend]
