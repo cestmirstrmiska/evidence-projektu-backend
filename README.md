@@ -1,6 +1,16 @@
 # 🏢 Podnikový informační systém — Backend (REST API)
 
-Tento repozitář obsahuje backendovou část aplikace napsanou v frameworku **Django** a **Django REST Framework**. Jako databáze je použito **PostgreSQL**.
+Tento repozitář obsahuje backendovou část aplikace napsanou ve frameworku **Django** a **Django REST Framework**. Jako databáze je použito **PostgreSQL**.
+
+Aplikace umožňuje zadávat informace o projektech (název, popis, datum zahájení, datum ukončení, stav projektu, členy projektového týmu). 
+Název projektu musí být unikátní. Stav projektu může nabývat jedné z hodnot ve statickém select boxu (Příprava, V realizaci, Pozastaven, Dokončen).
+Dále lze registrovat osoby, které se mohou účastnit projektů, tj. mohou být členy projektových týmů. U osoby se ukládá jméno, příjmení, email a pozice.
+Email musí být unikátní. 
+
+Aplikace podporuje standardně operace CRUD. Vyhledávat lze fulltextově, u projektů téže podle stavu projektu pomocí statického select boxu,
+u osob též podle pozice pomocí dynamického select boxu.
+
+Pokud jde o operaci Delete, provádí fyzický výmaz z databáze. Aplikace neprovádí žádnou archivaci ani hisorizaci dat.
 
 ### 🔗 Propojení
 * **Frontend repozitář najdete zde:** [https://github.com/cestmirstrmiska/evidence-projektu-frontend]
