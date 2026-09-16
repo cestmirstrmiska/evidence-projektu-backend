@@ -25,7 +25,9 @@ Před spuštěním aplikace je nutné mít nainstalovaný **PostgreSQL server** 
    `pip install -r requirements.txt`
 3. **Spusťte databázové migrace:**
    `python manage.py migrate`
-4. **Spusťte vývojový server:**
+4. **(Optional) Inicializujte databázi výchozími testovacími daty (Seeding):**
+   `python manage.py loaddata core/initial_data.json`
+5. **Spusťte vývojový server:**
    `python manage.py runserver`
 
 Backend bude po spuštění naslouchat a poskytovat REST API na adrese `http://127.0.0.1:8000/api`.

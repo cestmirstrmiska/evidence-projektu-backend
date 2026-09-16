@@ -1,0 +1,56 @@
+[
+  {
+    "model": "core.osoba",
+    "pk": 1,
+    "fields": {
+      "jmeno": "Jan",
+      "prijmeni": "Novák",
+      "email": "jan.novak@firma.cz",
+      "pozice": "Senior Developer"
+    }
+  },
+  {
+    "model": "core.osoba",
+    "pk": 2,
+    "fields": {
+      "jmeno": "Petr",
+      "prijmeni": "Svoboda",
+      "email": "petr.svoboda@firma.cz",
+      "pozice": "Scrum Master"
+    }
+  },
+  {
+    "model": "core.osoba",
+    "pk": 3,
+    "fields": {
+      "jmeno": "Marie",
+      "prijmeni": "Černá",
+      "email": "marie.cerna@firma.cz",
+      "pozice": "Manažer"
+    }
+  },
+  {
+    "model": "core.projekt",
+    "pk": 1,
+    "fields": {
+      "nazev": "Informační systém V2",
+      "popis": "Kompletní redesign interní podnikové architektury.",
+      "start_date": "2026-01-01",
+      "end_date": null,
+      "stav": "V realizaci",
+      "clenove": [1, 2]
+    }
+  },
+  {
+    "model": "core.projekt",
+    "pk": 2,
+    "fields": {
+      "nazev": "Mobilní aplikace pro klienty",
+      "popis": "Vývoj nativní iOS a Android aplikace.",
+      "start_date": "2026-05-01",
+      "end_date": "2026-12-31",
+      "stav": "Příprava",
+      "clenove": [1, 3]
+    }
+  }
+]
