@@ -73,3 +73,8 @@ REST API vrací i přijímá data výhradně ve formátu **JSON** a automaticky 
 | **GET** | `/api/projekty//` | Detail konkrétního projektu | *(Žádné)* |
 | **PUT** | `/api/projekty/{id}/` | Kompletní aktualizace projektu | `{"nazev": "E-shop v2", "popis": "Update", "start_date": "2026-01-01", "end_date": "2026-12-31", "stav": "Realizace", "clenove": [1]}` |
 | **DELETE** | `/api/projekty/{id}/` | Smazání projektu | *(Žádné)* |
+
+## ⚙️ Security:
+Pro produkční prostředí je třeba upravit konfiguraci setting.py 
+- nastavit CORS_ALLOW_ALL_ORIGINS = False 
+- přidat seznam CORS_ALLOWED_ORIGINS s doménami, které mohou s backendem komunikovat 
