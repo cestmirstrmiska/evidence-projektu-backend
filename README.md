@@ -41,6 +41,10 @@ Níže je zobrazen vztah mezi tabulkami v relační databázi PostgreSQL. Vazba 
 ![Databázové schéma](ERD-diagram.png)
 
 ---
+Poznámka: 
+- Nad tabulkou projektů jsou vytvořeny indexy pro zajištění unikátnosti a pro vyhledávání podle názvu.
+- Podobně nad tabulkou osob jsou indexy pro email. 
+- Podle potřeby lze doplnit indexy pro další sloupce.
 
 ## ⚙️ Přehled API endpointů (CRUD specifikace)
 
